@@ -1,0 +1,133 @@
+- name: Create new VPC
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - ../vars/region.yml
+  tasks:
+    - name: 1.Create a new VPC and internet gateway
+      register: martin_vpc
+      local_action:
+        module: ec2_vpc_net
+        name: martin_vpc
+        state: present
+        cidr_block: 172.20.0.0/16
+        resource_tags: { "Environment":"martintest" }
+        region: "{{ ec2_region }}"
+        dns_hostnames: yes
+        dns_support: yes
+    - ec2_vpc_igw:
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        state: present
+        tags:
+          Name: "martin_igw"
+      register: martin_igw
+
+    - name: 2.1Create public-subnet-az1 subnet
+      ec2_vpc_subnet:
+        state: present
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        cidr: 172.20.101.0/24
+        az: "{{ ec2_region_az1 }}"
+        resource_tags:
+          Name: martin-public-subnet-az1
+          Environment: "martintest"
+          Tier: public
+      register: publicsubnetaz1
+
+    - name: 2.2Create public-subnet-az2 subnet
+      ec2_vpc_subnet:
+        state: present
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        cidr: 172.20.102.0/24
+        az: "{{ ec2_region_az2 }}"
+        resource_tags:
+          Name: martin-public-subnet-az2
+          Environment: "martintest"
+          Tier: public
+      register: publicsubnetaz2
+
+    - name: 2.3Create private-subnet-az1 subnet
+      ec2_vpc_subnet:
+        state: present
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        cidr: 172.20.103.0/24
+        az: "{{ ec2_region_az1 }}"
+        resource_tags:
+          Name: martin-backend-subnet-az1
+          Environment: "martintest"
+          Tier: private
+      register: privatesubnetaz1
+
+    - name: 2.4Create private-subnet-az1 subnet
+      ec2_vpc_subnet:
+        state: present
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        cidr: 172.20.104.0/24
+        az: "{{ ec2_region_az2 }}"
+        resource_tags:
+          Name: martin-backend-subnet-az2
+          Environment: "martintest"
+          Tier: private
+      register: privatesubnetaz2
+
+
+
+    - name: 3.1Create new nat gateway and allocate new EIP.
+      ec2_vpc_nat_gateway:
+        state: present
+        subnet_id: "{{ publicsubnetaz1.subnet.id }}"
+        wait: yes
+        region: "{{ ec2_region }}"
+      register: nat_gateway1
+  
+
+    - name: 3.2Create new nat gateway and allocate new EIP.
+      ec2_vpc_nat_gateway:
+        state: present
+        subnet_id: "{{ publicsubnetaz2.subnet.id }}"
+        wait: yes
+        region: "{{ ec2_region }}"
+      register: nat_gateway2
+  
+  
+    - name: 4.1Set up public subnet route table
+      ec2_vpc_route_table:
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        region: "{{ ec2_region }}"
+        tags:
+          Name: Public
+        subnets:
+          - "{{ publicsubnetaz1.subnet.id }}"
+          - "{{ publicsubnetaz2.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ martin_igw.gateway_id }}"
+      register: public_route_table
+  
+    - name: 4.2Set up NAT-protected route table1
+      ec2_vpc_route_table:
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        region: "{{ ec2_region }}"
+        tags:
+          Name: Private1
+        subnets:
+          - "{{ privatesubnetaz1.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ nat_gateway1.nat_gateway_id }}"
+      register: nat_route_table1
+  
+  
+    - name: 4.3Set up NAT-protected route table2
+      ec2_vpc_route_table:
+        vpc_id: "{{ martin_vpc.vpc.id }}"
+        region: "{{ ec2_region }}"
+        tags:
+          Name: Private2
+        subnets:
+          - "{{ privatesubnetaz2.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ nat_gateway1.nat_gateway_id }}"
+      register: nat_route_table2
