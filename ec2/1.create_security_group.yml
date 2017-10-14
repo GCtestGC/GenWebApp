@@ -1,0 +1,54 @@
+- name: Provision security groups based on the environment
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - ../vars/region.yml
+
+  vars:
+    security_groups:
+      - name: webapi_lb_sg
+        desc: the security group for webapi ELB
+        rules:
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 85.253.53.103/32
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 85.253.53.103/32
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            cidr_ip: 85.253.53.103/32
+      - name: webapi_sg
+        desc: the security group for webapi
+        rules:
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            group_name: webapi_lb_sg
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            group_name: webapi_lb_sg
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            group_name: webapi_lb_sg
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 85.253.53.103/32
+  tasks:
+  - name: Create required security groups
+    ec2_group:
+      name: "{{ item.name }}"
+      description: "{{ item.desc }}"
+      rules: "{{ item.rules }}"
+      region: "{{ ec2_region }}"
+      vpc_id: "{{ vpcloud_id }}"
+    with_items: "{{security_groups}}"
+
