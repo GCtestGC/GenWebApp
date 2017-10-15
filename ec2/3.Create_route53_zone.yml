@@ -15,7 +15,7 @@
 
     - name: Create a public zone
       route53_zone:
-        zone: martintestblog.xyz
+        zone: martintestwiki.xyz
         state: present
         comment: Public zone
 

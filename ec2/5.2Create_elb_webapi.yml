@@ -28,11 +28,7 @@
 #          load_balancer_port: 443
 #          instance_protocol: http 
 #          instance_port: 8080
-        # ssl certificate required for https or ssl. Certificate must be preinstalled int amazone. Information is possible to get through 
-        # AWS CLI: aws iam get-server-certificate --server-certificate-name certificate_name
-#          ssl_certificate_id: "arn:aws:iam::167476132075:server-certificate/elementare_wildcard"
-#          ssl_certificate_id: "arn:aws:acm:eu-west-1:167476132075:certificate/a33be113-b73e-4bf6-88ab-61a7d772e18c"
-         #  ssl_certificate_id: "arn:aws:acm:eu-west-1:167476132075:certificate/045d14d2-b33d-4ac0-84ca-804322c1dd3e"
+#           ssl_certificate_id:
         - protocol: http
           load_balancer_port: 80
           instance_port: 80
