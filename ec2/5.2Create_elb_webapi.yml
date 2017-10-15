@@ -21,13 +21,13 @@
           - subnet-b6feeeec
           - subnet-f97bc39d
         listeners:
-        - protocol: http
-          load_balancer_port: 8080
-          instance_port: 8080
+#        - protocol: http
+#          load_balancer_port: 8080
+#          instance_port: 8080
 #        - protocol: https
 #          load_balancer_port: 443
 #          instance_protocol: http 
-#          instance_port: 8080
+#          instance_port: 80
 #           ssl_certificate_id:
         - protocol: http
           load_balancer_port: 80
