@@ -14,11 +14,11 @@
           - proto: tcp
             from_port: 443
             to_port: 443
-            cidr_ip: 85.253.53.103/32
+            cidr_ip: 213.219.119.194/32
           - proto: tcp
             from_port: 80
             to_port: 80
-            cidr_ip: 85.253.53.103/32
+            cidr_ip: 213.219.119.194/32
 #          - proto: tcp
 #            from_port: 8080
 #            to_port: 8080
@@ -26,7 +26,7 @@
           - proto: tcp
             from_port: 22
             to_port: 22
-            cidr_ip: 85.253.53.103/32
+            cidr_ip: 213.219.119.194/32
       - name: webapi_sg
         desc: the security group for webapi
         rules:
