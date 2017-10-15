@@ -1,0 +1,15 @@
+- name: Add webapi instances to elb
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - ../vars/region.yml
+  
+  tasks:
+    - name: Register instances
+      ec2_elb:
+        region: "{{ ec2_region }}"
+        instance_id: i-04c85574171bfad8e
+        ec2_elbs: WebApi-LoadBalancer
+        state: 'present'

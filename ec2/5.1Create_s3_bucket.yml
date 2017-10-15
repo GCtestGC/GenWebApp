@@ -1,0 +1,16 @@
+- name: Create S3 bucket for webapi ELB access logs
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+
+  vars_files:
+    - ../vars/region.yml
+
+  tasks:
+  - name: Create S3 bucket for webapi ELB
+    s3_bucket:
+      name: martin-loadbalancer-logs
+      region: "{{ ec2_region }}"
+      state: present
+      policy: "{{ lookup('file','bucket_policy.json') }}"

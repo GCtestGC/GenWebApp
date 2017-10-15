@@ -1,0 +1,53 @@
+- name: Create Webapi load balancer
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - ../vars/region.yml
+  
+  tasks:
+    - name: Create load balancer 
+      ec2_elb_lb:
+        region: "{{ ec2_region }}"
+        name: "WebApi-LoadBalancer"
+        scheme: internet-facing
+        state: present
+        connection_draining_timeout: 10
+        cross_az_load_balancing: yes
+        security_group_names: webapi_lb_sg
+        idle_timeout: 4000
+        subnets:
+          - subnet-b6feeeec
+          - subnet-f97bc39d
+        listeners:
+        - protocol: http
+          load_balancer_port: 8080
+          instance_port: 8080
+#        - protocol: https
+#          load_balancer_port: 443
+#          instance_protocol: http 
+#          instance_port: 8080
+        # ssl certificate required for https or ssl. Certificate must be preinstalled int amazone. Information is possible to get through 
+        # AWS CLI: aws iam get-server-certificate --server-certificate-name certificate_name
+#          ssl_certificate_id: "arn:aws:iam::167476132075:server-certificate/elementare_wildcard"
+#          ssl_certificate_id: "arn:aws:acm:eu-west-1:167476132075:certificate/a33be113-b73e-4bf6-88ab-61a7d772e18c"
+         #  ssl_certificate_id: "arn:aws:acm:eu-west-1:167476132075:certificate/045d14d2-b33d-4ac0-84ca-804322c1dd3e"
+        - protocol: http
+          load_balancer_port: 80
+          instance_port: 80
+        - protocol: TCP
+          load_balancer_port: 22
+          instance_port: 22
+        health_check:
+          ping_protocol: tcp
+          ping_port: 22
+#          ping_path: "/monitoring/health"
+          response_timeout: 5
+          interval: 30
+          unhealthy_threshold: 2
+          healthy_threshold: 3 
+        access_logs:
+          interval: 5
+          s3_location: "martin-loadbalancer-logs"
+          s3_prefix: "web-app"

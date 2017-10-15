@@ -1,0 +1,17 @@
+- name:  Update server
+  hosts: 'WebApi-LoadBalancer-1200527156.us-east-1.elb.amazonaws.com'
+  become: yes
+  become_method: sudo 
+  gather_facts: False
+ 
+
+  tasks:  
+  - name: Update system
+    apt: upgrade=dist update_cache=yes
+
+  - name: Check if a reboot is required
+    register: file
+    stat: path=/var/run/reboot-required get_md5=no
+  - name: Reboot the server
+    command: /sbin/reboot
+    when: file.stat.exists == true

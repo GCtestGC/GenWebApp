@@ -1,0 +1,21 @@
+  - name: Add new zones to route53
+    hosts: localhost
+    connection: local
+    gather_facts: False
+    vars_files:
+      - ../vars/region.yml
+    tasks:
+    - name: Create a private zone
+      route53_zone:
+        vpc_id: '{{ vpcloud_id }}'
+        vpc_region: '{{ ec2_region }}'
+        zone: gctest 
+        state: present
+      register: zone_out
+
+    - name: Create a public zone
+      route53_zone:
+        zone: martintestblog.xyz
+        state: present
+        comment: Public zone
+

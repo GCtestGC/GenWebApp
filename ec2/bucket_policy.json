@@ -1,0 +1,15 @@
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1508082519280",
+    "Statement": [
+        {
+            "Sid": "Stmt1508082513873",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::127311923021:root"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::martin-loadbalancer-logs/web-app/AWSLogs/310007993034/*"
+        }
+    ]
+}

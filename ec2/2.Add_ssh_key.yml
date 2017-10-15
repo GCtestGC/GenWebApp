@@ -1,0 +1,12 @@
+  - name: Add public key to ec2
+    hosts: localhost
+    connection: local
+    gather_facts: False
+    vars_files:
+      - ../vars/region.yml
+    tasks:
+    - name: Add ec2 key
+      ec2_key:
+        name: Martin-pub
+        key_material: "{{ item }}"
+      with_file: /home/martin/.ssh/id_rsa.pub

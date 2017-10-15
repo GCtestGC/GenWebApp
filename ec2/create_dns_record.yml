@@ -1,0 +1,12 @@
+
+- name: Create DNS record
+  route53:
+    private_zone: True
+    command: create
+    zone: "{{ domain }}"
+    record: "{{ server_name }}.{{ domain }}"
+    type: "CNAME"
+    value: "{{ item.private_dns_name }}"
+    overwrite: True
+    ttl: 60
+  with_items: "{{ ec2.instances }}"

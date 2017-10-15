@@ -1,0 +1,25 @@
+- name: Create webapi instance
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - ../vars/region.yml
+
+  tasks:
+  - include: create_server.yml
+    vars:
+      instances_keypair: Martin-pub
+      image_id: "{{ ubuntu_img_id }}" 
+      server_type: t2.micro
+      zone: "{{ ec2_region_az1 }}"
+      subnet: subnet-65f7e73f
+      security_group: webapi_sg
+      server_name: webapi1
+      hosts_file_group: webapis
+      log_disk: True
+      log_volume_size: 10
+  - include: create_dns_record.yml
+    vars:
+      domain: "{{ martin_domain_name }}" 
+      server_name: webapi1
